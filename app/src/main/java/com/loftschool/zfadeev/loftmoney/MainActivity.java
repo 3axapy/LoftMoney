@@ -1,86 +1,48 @@
 package com.loftschool.zfadeev.loftmoney;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+
+import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
-	
-	private static final int REQUEST_CODE = 100;
-	private ItemsAdapter mAdapter;
-	
-	public MainActivity() {
-		super();
-	}
-	
-	@Override
-	protected void onStart() {
-		super.onStart();
-	}
-	
-	@Override
-	protected void onStop() {
-		super.onStop();
-	}
-	
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-	}
-	
-	@Override
-	protected void onPause() {
-		super.onPause();
-	}
-	
-	@Override
-	protected void onResume() {
-		super.onResume();
-	}
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		Button callAddButton = findViewById(R.id.call_add_item_activity);
-		callAddButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(final View v) {
-				startActivityForResult(new Intent(MainActivity.this, AddItemActivity.class),
-					REQUEST_CODE);
-			}
-		});
+		TabLayout tabLayout = findViewById(R.id.tabs);
 		
-		RecyclerView recyclerView = findViewById(R.id.budget_item_list);
+		ViewPager viewPager = findViewById(R.id.viewpager);
+		viewPager.setAdapter(new BudgetPagerAdapter(getSupportFragmentManager(), FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT));
 		
-		mAdapter = new ItemsAdapter();
-		recyclerView.setAdapter(mAdapter);
-		
-		mAdapter.addItem(new Item("Молоко", 70));
-		mAdapter.addItem(new Item("Зубная щетка", 70));
-		mAdapter.addItem(new Item("Новый телевизор", 20000));
+		tabLayout.setupWithViewPager(viewPager);
+		tabLayout.getTabAt(0).setText(R.string.expences);
+		tabLayout.getTabAt(1).setText(R.string.income);
 	}
 	
-	@Override
-	protected void onActivityResult(
-		final int requestCode, final int resultCode, @Nullable final Intent data
-	) {
-		super.onActivityResult(requestCode, resultCode, data);
+	static class BudgetPagerAdapter extends FragmentPagerAdapter {
 		
-		int price;
-		try {
-			price = Integer.parseInt(data.getStringExtra("price"));
-		} catch (NumberFormatException e) {
-			price = 0;
+		public BudgetPagerAdapter(@NonNull final FragmentManager fm, final int behavior) {
+			super(fm, behavior);
 		}
-		if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
-			mAdapter.addItem(new Item(data.getStringExtra("name"), price));
+		
+		@NonNull
+		@Override
+		public Fragment getItem(final int position) {
+			return new BudgetFragment();
+		}
+		
+		@Override
+		public int getCount() {
+			return 2;
 		}
 	}
 }
