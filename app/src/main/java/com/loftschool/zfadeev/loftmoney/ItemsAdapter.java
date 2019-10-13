@@ -1,5 +1,6 @@
 package com.loftschool.zfadeev.loftmoney;
 
+import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -8,18 +9,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHolder> {
 	
 	private List<Item> mItemsList = new ArrayList<Item>();
+	private final int colorId;
+	
+	public ItemsAdapter(final int colorId) {
+		this.colorId = colorId;
+	}
 	
 	@NonNull
 	@Override
 	public ItemViewHolder onCreateViewHolder(@NonNull final ViewGroup parent, final int viewType) {
 		View itemView = View.inflate(parent.getContext(), R.layout.item_view, null);
 		
-		return new ItemViewHolder(itemView);
+		return new ItemViewHolder(itemView, colorId);
 	}
 	
 	@Override
@@ -42,11 +49,14 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemViewHold
 		private TextView mNameView;
 		private TextView mPriceView;
 		
-		public ItemViewHolder(@NonNull final View itemView) {
+		public ItemViewHolder(@NonNull final View itemView, final int colorId) {
 			super(itemView);
 			
 			mNameView = itemView.findViewById(R.id.name_view);
 			mPriceView = itemView.findViewById(R.id.price_view);
+			
+			final Context context = mPriceView.getContext();
+			mPriceView.setTextColor(ContextCompat.getColor(context, colorId));
 		}
 		
 		public void bindItem(final Item item) {
