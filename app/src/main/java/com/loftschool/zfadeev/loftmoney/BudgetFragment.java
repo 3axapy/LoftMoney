@@ -15,17 +15,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class BudgetFragment extends Fragment {
 	
-	private static final int REQUEST_CODE = 100;
+	public static final int REQUEST_CODE = 100;
 	private static final String COLOR_ID = "colorId";
 	private static final String TYPE = "fragmentType";
 	
 	private ItemsAdapter mAdapter;
+	private SwipeRefreshLayout mSwipeRefreshLayout;
 	
 	private Api mApi;
 	
@@ -54,16 +56,15 @@ public class BudgetFragment extends Fragment {
 	) {
 		View view = inflater.inflate(R.layout.fragment_budget, null);
 		
-		Button callAddButton = view.findViewById(R.id.call_add_item_activity);
-		callAddButton.setOnClickListener(new View.OnClickListener() {
+		RecyclerView recyclerView = view.findViewById(R.id.budget_item_list);
+		mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+		mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+			
 			@Override
-			public void onClick(final View v) {
-				startActivityForResult(new Intent(getActivity(), AddItemActivity.class),
-					REQUEST_CODE);
+			public void onRefresh() {
+				loadItems();
 			}
 		});
-		
-		RecyclerView recyclerView = view.findViewById(R.id.budget_item_list);
 		
 		mAdapter = new ItemsAdapter(getArguments().getInt(COLOR_ID));
 		recyclerView.setAdapter(mAdapter);
@@ -122,6 +123,8 @@ public class BudgetFragment extends Fragment {
 			public void onResponse(
 				final Call<List<Item>> call, final Response<List<Item>> response
 			) {
+				mAdapter.clearItems();
+				mSwipeRefreshLayout.setRefreshing(false);
 				List<Item> items = response.body();
 				for (Item item : items) {
 					mAdapter.addItem(item);
@@ -130,7 +133,7 @@ public class BudgetFragment extends Fragment {
 			
 			@Override
 			public void onFailure(final Call<List<Item>> call, final Throwable t) {
-			
+				mSwipeRefreshLayout.setRefreshing(false);
 			}
 		});
 		

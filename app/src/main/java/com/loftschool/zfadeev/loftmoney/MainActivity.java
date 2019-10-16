@@ -10,11 +10,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.view.View;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
@@ -33,12 +36,24 @@ public class MainActivity extends AppCompatActivity {
 		
 		TabLayout tabLayout = findViewById(R.id.tabs);
 		
-		ViewPager viewPager = findViewById(R.id.viewpager);
+		final ViewPager viewPager = findViewById(R.id.viewpager);
 		final BudgetPagerAdapter adapter = new BudgetPagerAdapter(
 			getSupportFragmentManager(),
 			FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 		
 		viewPager.setAdapter(adapter);
+		
+		FloatingActionButton floatingActionButton = findViewById(R.id.fab);
+		floatingActionButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(final View v) {
+				final int activeFragmentIndex = viewPager.getCurrentItem();
+				Fragment activeFragment = getSupportFragmentManager().getFragments().get(activeFragmentIndex);
+				activeFragment.startActivityForResult(new Intent(MainActivity.this, AddItemActivity.class),
+					BudgetFragment.REQUEST_CODE);
+			}
+		});
 		
 		tabLayout.setupWithViewPager(viewPager);
 		tabLayout.getTabAt(0).setText(R.string.expences);
