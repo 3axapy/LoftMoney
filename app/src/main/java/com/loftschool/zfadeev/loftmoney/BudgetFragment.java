@@ -69,8 +69,6 @@ public class BudgetFragment extends Fragment {
 		mAdapter = new ItemsAdapter(getArguments().getInt(COLOR_ID));
 		recyclerView.setAdapter(mAdapter);
 		
-		
-		
 		return view;
 	}
 	
@@ -80,14 +78,14 @@ public class BudgetFragment extends Fragment {
 	) {
 		super.onActivityResult(requestCode, resultCode, data);
 		
-		int price;
-		try {
-			price = Integer.parseInt(data.getStringExtra("price"));
-		} catch (NumberFormatException e) {
-			price = 0;
-		}
-		final int realPrice = price;
 		if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+			int price;
+			try {
+				price = Integer.parseInt(data.getStringExtra("price"));
+			} catch (NumberFormatException e) {
+				price = 0;
+			}
+			final int realPrice = price;
 			final String name = data.getStringExtra("name");
 			
 			final String token = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(MainActivity.TOKEN, "");

@@ -6,15 +6,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -24,10 +18,8 @@ public class MainActivity extends AppCompatActivity {
 	
 	public static final String EXPENSE = "expense";
 	public static final String INCOME = "income";
-	private static final String USER_ID = "zfadeev";
 	public static final String TOKEN = "token";
 	
-	private Api mApi;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
 				Fragment activeFragment = getSupportFragmentManager().getFragments().get(activeFragmentIndex);
 				activeFragment.startActivityForResult(new Intent(MainActivity.this, AddItemActivity.class),
 					BudgetFragment.REQUEST_CODE);
+				overridePendingTransition(R.anim.from_rigth_in, R.anim.from_left_out);
 			}
 		});
 		
@@ -59,35 +52,12 @@ public class MainActivity extends AppCompatActivity {
 		tabLayout.getTabAt(0).setText(R.string.expences);
 		tabLayout.getTabAt(1).setText(R.string.income);
 		
-		mApi = ((LoftApp)getApplication()).getApi();
-		
-		final String token = PreferenceManager.getDefaultSharedPreferences(this).getString(TOKEN, "");
-		if (TextUtils.isEmpty(token)) {
-			Call<Status> auth = mApi.auth(USER_ID);
-			auth.enqueue(new Callback<Status>() {
-				
-				@Override
-				public void onResponse(
-					final Call<Status> call, final Response<Status> response
-				) {
-					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(
-						MainActivity.this).edit();
-					editor.putString(TOKEN, response.body().getToken());
-					editor.apply();
-					
-					for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-						if (fragment instanceof BudgetFragment) {
-							((BudgetFragment)fragment).loadItems();
-						}
-					}
-				}
-				
-				@Override
-				public void onFailure(final Call<Status> call, final Throwable t) {
-				
-				}
-			});
+		for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+			if (fragment instanceof BudgetFragment) {
+				((BudgetFragment)fragment).loadItems();
+			}
 		}
+		
 	}
 	
 	static class BudgetPagerAdapter extends FragmentPagerAdapter {
