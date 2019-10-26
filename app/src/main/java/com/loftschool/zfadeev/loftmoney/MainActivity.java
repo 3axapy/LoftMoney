@@ -1,6 +1,7 @@
 package com.loftschool.zfadeev.loftmoney;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -25,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 	
 	private TabLayout mTabLayout;
 	private Toolbar mToolbar;
+	private FloatingActionButton mFloatingActionButton;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +37,40 @@ public class MainActivity extends AppCompatActivity {
 		mToolbar = findViewById(R.id.toolbar);
 		
 		final ViewPager viewPager = findViewById(R.id.viewpager);
+		viewPager.setOffscreenPageLimit(3);
 		final BudgetPagerAdapter adapter = new BudgetPagerAdapter(
 			getSupportFragmentManager(),
 			FragmentPagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
 		
 		viewPager.setAdapter(adapter);
+		viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			
+			@Override
+			public void onPageScrolled(
+				final int position,
+				final float positionOffset,
+				final int positionOffsetPixels
+			) {
+			
+			}
+			
+			@Override
+			public void onPageSelected(final int position) {
+				if (position == 2) {
+					mFloatingActionButton.hide();
+				} else {
+					mFloatingActionButton.show();
+				}
+			}
+			
+			@Override
+			public void onPageScrollStateChanged(final int state) {
+			
+			}
+		});
 		
-		FloatingActionButton floatingActionButton = findViewById(R.id.fab);
-		floatingActionButton.setOnClickListener(new View.OnClickListener() {
+		mFloatingActionButton = findViewById(R.id.fab);
+		mFloatingActionButton.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
 			public void onClick(final View v) {
@@ -57,10 +85,19 @@ public class MainActivity extends AppCompatActivity {
 		mTabLayout.setupWithViewPager(viewPager);
 		mTabLayout.getTabAt(0).setText(R.string.expences);
 		mTabLayout.getTabAt(1).setText(R.string.income);
+		mTabLayout.getTabAt(2).setText(R.string.balance);
 		
 		for (Fragment fragment : getSupportFragmentManager().getFragments()) {
 			if (fragment instanceof BudgetFragment) {
 				((BudgetFragment)fragment).loadItems();
+			}
+		}
+	}
+	
+	public void loadBalance() {
+		for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+			if (fragment instanceof BalanceFragment) {
+				((BalanceFragment)fragment).loadBalance();
 			}
 		}
 	}
@@ -70,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onActionModeStarted(mode);
 		mTabLayout.setBackgroundColor(ContextCompat.getColor(this,R.color.dark_gray_blue));
 		mToolbar.setBackgroundColor(ContextCompat.getColor(this,R.color.dark_gray_blue));
+		mFloatingActionButton.hide();
 	}
 	
 	@Override
@@ -77,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
 		super.onActionModeFinished(mode);
 		mTabLayout.setBackgroundColor(ContextCompat.getColor(this,R.color.colorPrimary));
 		mToolbar.setBackgroundColor(ContextCompat.getColor(this,R.color.colorPrimary));
+		mFloatingActionButton.show();
 	}
 	
 	static class BudgetPagerAdapter extends FragmentPagerAdapter {
@@ -93,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
 					return BudgetFragment.newInstance(R.color.dark_sky_blue, EXPENSE);
 				case 1:
 					return BudgetFragment.newInstance(R.color.apple_green, INCOME);
+				case 2:
+					return BalanceFragment.newInstance();
 				default:
 					return null;
 			}
@@ -100,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
 		
 		@Override
 		public int getCount() {
-			return 2;
+			return 3;
 		}
  	}
 }
